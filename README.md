@@ -792,133 +792,170 @@ Jawab:
   ```
   ab -n 200 -c 10 http://192.190.2.2/
   ```
+Setelah membuat lima algoritma web server, semua algoritma sekilas mirip, hanya beda pada saat 90% request terlayani. Jika lebih diteliti, algoritma Round Robin Weight merupakan algoritma terbaik dalam melayani request. Walaupun membutuhkan banyak waktu saat di bawah 5%, algoritma tersebut membutuhkan waktu yang efisien setelah itu. Terlihat jika algoritma Rund Robin Weight memiliki waktu yang lebih singkat daripada algoritma lainnya. Selain itu, Rund Robin Weight juga lebih stabil.
+Perbandingan waktu antar algoritma jika sampai semua request terpenuhi:
+![gambar_grafik-algo](https://github.com/gilangalief05/Jarkom-Modul-3-B24-2023/blob/main/resource/grafik-algo.png)
 
 
 ## Nomor 9
+Soal:
+Dengan menggunakan algoritma Round Robin, lakukan testing dengan menggunakan 3 worker, 2 worker, dan 1 worker sebanyak 100 request dengan 10 request/second, kemudian tambahkan grafiknya pada grimoire.
+Jawab:
+- [PHP worker]
+  Matikan 1 atau 2 nginx pada node PHP worker sesuai pengujian
+  ```
+  service nginx stop
+  ```
+- Ritcher
+  Lakukan test pada node ini (ubah algoritma sesuai pada tabel nomor 7)
+  ```
+  ab -n 200 -c 10 http://192.190.2.2/
+  ```
+Perbandingan waktu antar algoritma jika sampai semua request terpenuhi:
+![gambar_grafik-algo](https://github.com/gilangalief05/Jarkom-Modul-3-B24-2023/blob/main/resource/grafik-lb.png)
 
-Ritcher
-ab -n 100 -c 10 http://192.190.2.2/
 
-10-10-10-10-10-10-10-10-10-10-10-10-10-10-10-10-10-10-10-10-10-10-10-10-10-10-10-10-1
-Eisen
-nano 10-auth.sh
-apt-get install apache2-utils -y
-rm -rf /etc/nginx/rahasiakita
-mkdir /etc/nginx/rahasiakita
-htpasswd -c -b /etc/nginx/rahasiakita/.htpasswd netics ajkb24
-
-nano 10-lb.sh
-cat << 'EOF' > /etc/nginx/sites-available/lb
-upstream backend {
-    server 192.190.3.1; #IP Lawine
-    server 192.190.3.2; #IP Linie
-    server 192.190.3.3; #IP Lugner
-}
-
-server {
-    listen 80;
-    server_name granz.channel.b24.com;
-
-    location / {
-        proxy_pass http://backend;
-        proxy_set_header    X-Real-IP $remote_addr;
-        proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header    Host $http_host;
-
-        auth_basic "Administrator's Area";
-        auth_basic_user_file /etc/nginx/rahasiakita/.htpasswd;
+## Soal 10
+Soal:
+Selanjutnya coba tambahkan konfigurasi autentikasi di LB dengan dengan kombinasi username: “netics” dan password: “ajkyyy”, dengan yyy merupakan kode kelompok. Terakhir simpan file “htpasswd” nya di /etc/nginx/rahasisakita/
+Jawab:
+- Eisen
+  - nano 10-auth.sh
+    ```
+    apt-get install apache2-utils -y
+    rm -rf /etc/nginx/rahasiakita
+    mkdir /etc/nginx/rahasiakita
+    htpasswd -c -b /etc/nginx/rahasiakita/.htpasswd netics ajkb24
+    ```
+  - nano 10-lb.sh
+    ```
+    cat << 'EOF' > /etc/nginx/sites-available/lb
+    upstream backend {
+        server 192.190.3.1; #IP Lawine
+        server 192.190.3.2; #IP Linie
+        server 192.190.3.3; #IP Lugner
     }
 
-    location ~ /\.ht {
-        deny all;
+    server {
+        listen 80;
+        server_name granz.channel.b24.com;
+
+        location / {
+            proxy_pass http://backend;
+            proxy_set_header    X-Real-IP $remote_addr;
+            proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header    Host $http_host;
+
+            auth_basic "Administrator's Area";
+            auth_basic_user_file /etc/nginx/rahasiakita/.htpasswd;
+        }
+
+        location ~ /\.ht {
+           deny all;
+        }
+
+        error_log /var/log/nginx/lb_error.log;
+        access_log /var/log/nginx/lb_access.log;
+    }
+    EOF
+
+    rm -f /etc/nginx/sites-enabled/default
+    rm -f /etc/nginx/sites-enabled/lb-lc
+    rm -f /etc/nginx/sites-enabled/lb-rrw
+    rm -f /etc/nginx/sites-enabled/lb-iph
+    rm -f /etc/nginx/sites-enabled/lb-gh
+    rm -f /etc/nginx/sites-enabled/lb-15-16-17
+
+    ln -s /etc/nginx/sites-available/lb /etc/nginx/sites-enabled/
+    ls /etc/nginx/sites-enabled/
+    service nginx restart
+    ```
+  - nano .bashrc
+    ```
+    bash 10-auth.sh
+    bash 10-lb.sh
+    ```
+- Richter
+  Lakukan pengujian dan masuk ke dalam web
+  ```
+  ab -A netics:ajkb24 -n 100 -c 100 http://192.190.2.2/
+  lynx http://192.190.2.2/
+  ```
+
+
+## Nomor 11
+Soal:
+Lalu buat untuk setiap request yang mengandung /its akan di proxy passing menuju halaman https://www.its.ac.id
+Jawab:
+- Eisen
+  - nano 11-lb.sh
+    ```
+    cat << 'EOF' > /etc/nginx/sites-available/lb
+    upstream backend {
+        server 192.190.3.1; #IP Lawine
+        server 192.190.3.2; #IP Linie
+        server 192.190.3.3; #IP Lugner
     }
 
-    error_log /var/log/nginx/lb_error.log;
-    access_log /var/log/nginx/lb_access.log;
-}
-EOF
+    server {
+        listen 80;
+        server_name granz.channel.b24.com;
 
-rm -f /etc/nginx/sites-enabled/default
-rm -f /etc/nginx/sites-enabled/lb-lc
-rm -f /etc/nginx/sites-enabled/lb-rrw
-rm -f /etc/nginx/sites-enabled/lb-iph
-rm -f /etc/nginx/sites-enabled/lb-gh
-rm -f /etc/nginx/sites-enabled/lb-15-16-17
+        location / {
+            proxy_pass http://backend;
+            proxy_set_header    X-Real-IP $remote_addr;
+            proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header    Host $http_host;
 
-ln -s /etc/nginx/sites-available/lb /etc/nginx/sites-enabled/
-ls /etc/nginx/sites-enabled/
-service nginx restart
+            auth_basic "Administrator's Area";
+            auth_basic_user_file /etc/nginx/rahasiakita/.htpasswd;
+        }
 
-nano .bashrc
-bash 10-auth.sh
-bash 10-lb.sh
+        location ~ /\.ht {
+            deny all;
+        }
 
-Richter
-ab -A netics:ajkb24 -n 100 -c 100 http://192.190.2.2/
-lynx http://192.190.2.2/
+        location /its {
+            proxy_pass https://www.its.ac.id;
+        }
 
-11-11-11-11-11-11-11-11-11-11-11-11-11-11-11-11-11-11-11-11-11-11-11-11-11-11-11-11-11-1
-Eisen
-nano 11-lb.sh
-cat << 'EOF' > /etc/nginx/sites-available/lb
-upstream backend {
-    server 192.190.3.1; #IP Lawine
-    server 192.190.3.2; #IP Linie
-    server 192.190.3.3; #IP Lugner
-}
+        location ~ ^/(.*/)its {
+            proxy_pass https://www.its.ac.id;
+        }
 
-server {
-    listen 80;
-    server_name granz.channel.b24.com;
-
-    location / {
-        proxy_pass http://backend;
-        proxy_set_header    X-Real-IP $remote_addr;
-        proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header    Host $http_host;
-
-        auth_basic "Administrator's Area";
-        auth_basic_user_file /etc/nginx/rahasiakita/.htpasswd;
+        error_log /var/log/nginx/lb_error.log;
+        access_log /var/log/nginx/lb_access.log;
     }
+    EOF
 
-    location ~ /\.ht {
-        deny all;
-    }
+    rm -f /etc/nginx/sites-enabled/default
+    rm -f /etc/nginx/sites-enabled/lb-lc
+    rm -f /etc/nginx/sites-enabled/lb-rrw
+    rm -f /etc/nginx/sites-enabled/lb-iph
+    rm -f /etc/nginx/sites-enabled/lb-gh
+    rm -f /etc/nginx/sites-enabled/lb-15-16-17
 
-    location /its {
-        proxy_pass https://www.its.ac.id;
-    }
-
-    location ~ ^/(.*/)its {
-        proxy_pass https://www.its.ac.id;
-    }
-
-    error_log /var/log/nginx/lb_error.log;
-    access_log /var/log/nginx/lb_access.log;
-}
-EOF
-
-rm -f /etc/nginx/sites-enabled/default
-rm -f /etc/nginx/sites-enabled/lb-lc
-rm -f /etc/nginx/sites-enabled/lb-rrw
-rm -f /etc/nginx/sites-enabled/lb-iph
-rm -f /etc/nginx/sites-enabled/lb-gh
-rm -f /etc/nginx/sites-enabled/lb-15-16-17
-
-ln -s /etc/nginx/sites-available/lb /etc/nginx/sites-enabled/
-ls /etc/nginx/sites-enabled/
-service nginx restart
-
-nano .bashrc
-bash 11-lb.sh
-
-Richter
-lynx 192.190.2.2/its
-lynx 192.190.2.2/foo/its
-
-12-12-12-12-12-12-12-12-12-12-12-12-12-12-12-12-12-12-12-12-12-12-12-12-12-12-12-12-1
-Revolte
+    ln -s /etc/nginx/sites-available/lb /etc/nginx/sites-enabled/
+    ls /etc/nginx/sites-enabled/
+    service nginx restart
+    ```
+  - nano .bashrc
+    ```
+    bash 11-lb.sh
+    ```
+- Richter
+  ```
+  lynx 192.190.2.2/its
+  lynx 192.190.2.2/foo/its
+  ```
+  
+## Nomor 12
+Soal:
+Selanjutnya LB ini hanya boleh diakses oleh client dengan IP [Prefix IP].3.69, [Prefix IP].3.70, [Prefix IP].4.167, dan [Prefix IP].4.168.
+Jawab:
+- Revolte
 nano 12-add-interface-hwaddres.sh
+```
 echo 'auto eth0
 iface eth0 inet dhcp
 
@@ -935,23 +972,27 @@ iface eth0 inet dhcp
 
 hwaddress ether 5e:17:cc:01:6c:91
 ' > /etc/network/interfaces
-
+```
 nano .bashrc
+```
 bash 12-add-interface-hwaddres.sh
-
-Stark
+```
+- Stark
 nano 12-add-interface-hwaddres.sh
+```
 echo 'auto eth0
 iface eth0 inet dhcp
 
 hwaddress ether ea:88:d9:be:1f:d4
 ' > /etc/network/interfaces
-
+```
 nano .bashrc
+```
 bash 12-add-interface-hwaddres.sh
-
-Himmel
+```
+- Himmel
 nano 12-add-host-fixed-address.sh
+```
 echo 'subnet 192.190.1.0 netmask 255.255.255.0 {
 }
 
@@ -1023,12 +1064,14 @@ subnet 192.190.4.0 netmask 255.255.255.0 {
 ' > /etc/dhcp/dhcpd.conf
 service isc-dhcp-server restart
 service isc-dhcp-server status
-
+```
 nano .bashrc
+```
 bash 12-add-host-fixed-address.sh
-
-Eisen
+```
+- Eisen
 nano 12-lb.sh
+```
 cat << 'EOF' > /etc/nginx/sites-available/lb
 upstream backend {
     server 192.190.3.1; #IP Lawine
@@ -1084,20 +1127,29 @@ rm -f /etc/nginx/sites-enabled/lb-15-16-17
 ln -s /etc/nginx/sites-available/lb /etc/nginx/sites-enabled/
 ls /etc/nginx/sites-enabled/
 service nginx restart
-
-nano .bashrc	
+```
+nano .bashrc
+```
 bash 12-lb.sh
+```
 
-13-13-13-13-13-13-13-13-13-13-13-13-13-13-13-13-13-13-13-13-13-13-13-13-13-13-13-13-1
-Denken
+
+## Nomor 13
+Soal:
+Semua data yang diperlukan, diatur pada Denken dan harus dapat diakses oleh Frieren, Flamme, dan Fern.
+Jawab:
+- Denken
 nano 13-install-mariadb.sh
+```
 apt-get update
 apt-get install mariadb-server -y
 service mysql start
-
+```
 nano .bashrc
+```
 bash 13-install-mariadb.sh
-
+```
+```
 dpkg --configure -a
 mysql
 
@@ -1116,8 +1168,9 @@ passwordb24
 SHOW DATABASES;
 USE dbkelompokb24;
 SHOW TABLES;
-
+```
 nano 13-allow-all-ip.sh
+```
 cat << 'EOF' > /etc/mysql/my.cnf
 # The MariaDB configuration file
 #
@@ -1156,20 +1209,23 @@ Sein
 nano 13-install-mariadb-client.sh
 apt-get update
 apt-get install mariadb-client -y
-
+```
 nano .bashrc
+```
 bash 13-install-mariadb-client.sh
-
+```
+```
 mariadb --host=192.190.2.1 --port=3306 --user=kelompokb24 --password
 passwordb24
 SHOW DATABASES;
 USE dbkelompokb24;
-
-REVISI DARI NO 14-20
-14-14-14-14-14-14-14-14-14-14-14-14-14-14-14-14-14-14-14-14-14-14-14-14-14-14-14-14-1
-REVISI DARI NO 14-20
-Frieren, Flamme, Fern
+```
+## REVISI DARI NO 14-20
+## Nomor 14
+Frieren, Flamme, dan Fern memiliki Riegel Channel sesuai dengan quest guide berikut. Jangan lupa melakukan instalasi PHP8.0 dan Composer
+- Frieren, Flamme, Fern
 nano 14-install-pkg.sh
+```
 apt-get install -y lsb-release ca-certificates apt-transport-https software-properties-common gnupg2
 curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg
 sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
@@ -1248,37 +1304,43 @@ VITE_PUSHER_PORT="${PUSHER_PORT}"
 VITE_PUSHER_SCHEME="${PUSHER_SCHEME}"
 VITE_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
 EOF
-
+```
 nano .bashrc
+```
 bash 14-install-pkg.sh
-
-Flamme
+```
+- Flamme
 nano 14-migrate.sh
+```
 cd /var/www/laravel-praktikum-jarkom
 php artisan migrate:fresh
 php artisan db:seed --class=AiringsTableSeeder
 cd ../../../root
-
+```
 bash 14-migrate.sh
 
-Denken
+- Denken
+```
 mysql -u kelompokb24 -p
 passwordb424
 SHOW DATABASES;
 USE dbkelompokb24;
 SHOW TABLES;
 SELECT * FROM airings;
+```
 
-Frieren, Flamme, Fern
+- Frieren, Flamme, Fern
 nano 14-generate.sh
+```
 cd /var/www/laravel-praktikum-jarkom
 php artisan key:generate
 cd ../../../root
-
+```
 bash 14-generate.sh
 
 Frieren
 nano 14-deploy-nginx.sh
+```
 cat << 'EOF' > /etc/nginx/sites-available/laravel-praktikum-jarkom
 server {
     listen 8001;
@@ -1320,11 +1382,12 @@ php artisan jwt:secret --no-interaction
 cd ../../../root
 apt-get update
 apt-get install lynx -y
-
+```
 bash 14-deploy-nginx.sh
 
-Flamme
+- Flamme
 nano 14-deploy-nginx.sh
+```
 cat << 'EOF' > /etc/nginx/sites-available/laravel-praktikum-jarkom
 server {
     listen 8002;
@@ -1366,11 +1429,12 @@ php artisan jwt:secret --no-interaction
 cd ../../../root
 apt-get update
 apt-get install lynx -y
-
+```
 bash 14-deploy-nginx.sh
 
-Fern
+- Fern
 nano 14-deploy-nginx.sh
+```
 cat << 'EOF' > /etc/nginx/sites-available/laravel-praktikum-jarkom
 server {
     listen 8003;
@@ -1412,21 +1476,34 @@ php artisan jwt:secret --no-interaction
 cd ../../../root
 apt-get update
 apt-get install lynx -y
-
+```
 bash 14-deploy-nginx.sh
 
-Frieren
+- Frieren
+```
 lynx http://localhost:8001/
-
-Flamme
+```
+- Flamme
+```
 lynx http://localhost:8002/
-
-Fern
+```
+- Fern
+```
 lynx http://localhost:8003/
+```
 
-15-16-17-15-16-17-15-16-17-15-16-17-15-16-17-15-16-17-15-16-17-15-16-17-15-16-17-15-1
-Eisen
+
+## Nomor 15, 16, 17
+Soal:
+Riegel Channel memiliki beberapa endpoint yang harus ditesting sebanyak 100 request dengan 10 request/second. Tambahkan response dan hasil testing pada grimoire.
+- POST /auth/register
+- POST /auth/login
+- GET /me
+
+Jawaban:
+- Eisen
 nano 15-16-17-lb.sh
+```
 cat << 'EOF' > /etc/nginx/sites-available/lb-15-16-17
 upstream laravel {
     server 192.190.4.1:8001; #IP Frieren
@@ -1455,30 +1532,41 @@ rm -f /etc/nginx/sites-enabled/lb
 ln -s /etc/nginx/sites-available/lb-15-16-17 /etc/nginx/sites-enabled/
 ls /etc/nginx/sites-enabled/
 service nginx restart
-
+```
 nano .bashrc	
+```
 bash 15-16-17-lb.sh
-
-Clients
+```
+- Clients
+```
 lynx http://192.190.2.2/
-
+```
 nano user.json
+```
 {
         "username": "username3",
         "password": "password3"
 }
-
+```
+```
 ab -n 100 -c 10 -T 'application/json' -p user.json -H 'Content-Type: application/json' http://192.190.2.2/api/auth/register
-
+```
+```
 ab -n 100 -c 10 -T 'application/json' -p user.json -H 'Content-Type: application/json' http://192.190.2.2/api/auth/login
-
+```
+```
 curl -X POST http://192.190.2.2/api/auth/login -H "Content-Type: application/json" -d '{"username":"username3","password":"password3"}'
-
+```
+```
 ab -n 100 -c 10 -H 'Authorization: Bearer [token login]' -T 'application/json' http://192.190.2.2/api/me
-
-18-18-18-18-18-18-18-18-18-18-18-18-18-18-18-18-18-18-18-18-18-18-18-18-18-18-18-18-1
-Eisen
+```
+## Nomor 18
+Soal:
+Untuk memastikan ketiganya bekerja sama secara adil untuk mengatur Riegel Channel maka implementasikan Proxy Bind pada Eisen untuk mengaitkan IP dari Frieren, Flamme, dan Fern.
+Jawab:
+- Eisen
 nano 18-lb.sh
+```
 cat << 'EOF' > /etc/nginx/sites-available/lb-18
 upstream laravel {
     server 192.190.4.1:8001; #IP Frieren
@@ -1525,11 +1613,12 @@ rm -f /etc/nginx/sites-enabled/lb-15-16-17
 ln -s /etc/nginx/sites-available/lb-18 /etc/nginx/sites-enabled/
 ls /etc/nginx/sites-enabled/
 service nginx restart
-
+```
 bash 18-lb.sh
 
-Frieren, Flamme, Fern
+- Frieren, Flamme, Fern
 nano 18-change-index.sh
+```
 cat << 'EOF' > /var/www/laravel-praktikum-jarkom/resources/views/welcome.blade.php
 <!DOCTYPE html>
 <html lang="en">
@@ -1552,33 +1641,39 @@ cat << 'EOF' > /var/www/laravel-praktikum-jarkom/resources/views/welcome.blade.p
 </body>
 </html>
 EOF
-
+```
 bash 18-change-index.sh
 
-Clients
+- Clients
+```
 lynx 192.190.2.2/frieren
-
+```
+```
 lynx 192.190.2.2/flamme
+```
+```
+lynx 192.190.2.2/fern
+```
 
- lynx 192.190.2.2/fern
-
-19-19-19-19-19-19-19-19-19-19-19-19-19-19-19-19-19-19-19-19-19-19-19-19-19-19-19-19-1
-Eisen
+## Nomoe 19
+- Eisen
 nano 19-install-fpm.sh
+```
 apt-get update
 apt-get install -y lsb-release ca-certificates apt-transport-https software-properties-common gnupg2
 curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg
 sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
 apt-get update
 apt-get install php8.0-mbstring php8.0-xml php8.0-cli php8.0-common php8.0-intl php8.0-opcache php8.0-readline php8.0-mysql php8.0-fpm php8.0-curl unzip wget -y
-
+```
 bash 19-install-fpm.sh
-
+```
 service php8.0-fpm status
 service php8.0-fpm start
 service php8.0-fpm status
-
+```
 nano 19-pool.sh
+```
 cat << 'EOF' > /etc/php/8.0/fpm/pool.d/eisen.conf
 [eisen_site]
 user = eisen_user
@@ -1598,14 +1693,16 @@ pm.min_spare_servers = 5
 pm.max_spare_servers = 20
 pm.process_idle_timeout = 10s
 EOF
-
+```
+```
 groupadd eisen_user
 useradd -g eisen_user eisen_user
 service php8.0-fpm restart
-
+```
 bash 19-pool.sh
 
 nano 19-lb.sh
+```
 cat << 'EOF' > /etc/nginx/sites-available/lb-19
 upstream laravel {
     server 192.190.4.1:8001; #IP Frieren
@@ -1662,14 +1759,16 @@ rm -f /etc/nginx/sites-enabled/lb-18
 ln -s /etc/nginx/sites-available/lb-19 /etc/nginx/sites-enabled/
 ls /etc/nginx/sites-enabled/
 service nginx restart
-
+```
 bash 19-lb.sh
 
-Clients
+- Clients
+```
 ab -n 100 -c 10 -T 'application/json' -p user.json -H 'Content-Type: application/json' http://192.190.2.2/api/auth/login
-
-Eisen
+```
+- Eisen
 nano 19-pool-2.sh
+```
 cat << 'EOF' > /etc/php/8.0/fpm/pool.d/eisen.conf
 [eisen_site]
 user = eisen_user
@@ -1689,18 +1788,22 @@ pm.min_spare_servers = 10
 pm.max_spare_servers = 25
 pm.process_idle_timeout = 10s
 EOF
-
+```
+```
 groupadd eisen_user
 useradd -g eisen_user eisen_user
 service php8.0-fpm restart
-
+```
 bash 19-pool-2.sh
 
-Clients
+- Clients
+```
 ab -n 100 -c 10 -T 'application/json' -p user.json -H 'Content-Type: application/json' http://192.190.2.2/api/auth/login
+```
 
-Eisen
+- Eisen
 nano 19-pool-3.sh
+```
 cat << 'EOF' > /etc/php/8.0/fpm/pool.d/eisen.conf
 [eisen_site]
 user = eisen_user
@@ -1720,19 +1823,22 @@ pm.min_spare_servers = 15
 pm.max_spare_servers = 30
 pm.process_idle_timeout = 10s
 EOF
-
+```
+```
 groupadd eisen_user
 useradd -g eisen_user eisen_user
 service php8.0-fpm restart
-
+```
 bash 19-pool-3.sh
 
-Clients
+- Clients
+```
 ab -n 100 -c 10 -T 'application/json' -p user.json -H 'Content-Type: application/json' http://192.190.2.2/api/auth/login
-
-20-20-20-20-20-20-20-20-20-20-20-20-20-20-20-20-20-20-20-20-20-20-20-20-20-20-20-20-2
-Eisen
+```
+## Nomor 20
+- Eisen
 nano 20-lb.sh
+```
 cat << 'EOF' > /etc/nginx/sites-available/lb-20
 upstream laravel {
     least_conn;
@@ -1791,8 +1897,10 @@ rm -f /etc/nginx/sites-enabled/lb-19
 ln -s /etc/nginx/sites-available/lb-20 /etc/nginx/sites-enabled/
 ls /etc/nginx/sites-enabled/
 service nginx restart
-
+```
 bash 20-lb.sh
 
-Clients
+- Clients
+```
 ab -n 100 -c 10 -T 'application/json' -p user.json -H 'Content-Type: application/json' http://192.190.2.2/api/auth/login
+```
