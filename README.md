@@ -7,7 +7,7 @@ Nama anggota:
 
 ## Persiapan
 Untuk menjawab soal, maka kami membuat topologi sesuai arahan. Soal meminta image docker `danielcristh0/debian-buster:1.1` dan peta topologi sebagai berikut:
-![gambar_topologi](https://github.com/gilangalief05/Jarkom-Modul-3-B24-2023/blob/893260da34c8ac487ab0adff488a340bc7829a59/resource/topologi.png)
+![gambar_topologi](https://github.com/gilangalief05/Jarkom-Modul-3-B24-2023/blob/main/resource/topologi.png)
 Dengan konfigurasi
 - Aura (router)
   ```
