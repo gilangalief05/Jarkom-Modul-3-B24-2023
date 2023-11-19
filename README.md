@@ -15,6 +15,9 @@ Presentase kontribusi:
    	- Nomor 15 sampai dengan Nomor 20 (Gimoire)
    	- Penambahan presentase kontribusi (Lapres)
 
+Link Grimoire:
+https://drive.google.com/file/d/1gW7jbaulkuDCfxfR5BOEDx4VVoiW8eBr/view?usp=sharing
+
 ## Persiapan
 Untuk menjawab soal, maka kami membuat topologi sesuai arahan. Soal meminta image docker `danielcristh0/debian-buster:1.1` dan peta topologi sebagai berikut:
 ![gambar_topologi](https://github.com/gilangalief05/Jarkom-Modul-3-B24-2023/blob/main/resource/topologi.png)
