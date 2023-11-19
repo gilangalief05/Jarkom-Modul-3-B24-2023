@@ -1655,7 +1655,15 @@ lynx 192.190.2.2/flamme
 lynx 192.190.2.2/fern
 ```
 
-## Nomoe 19
+## Nomor 19
+Soal:
+Untuk meningkatkan performa dari Worker, coba implementasikan PHP-FPM pada Frieren, Flamme, dan Fern. Untuk testing kinerja naikkan 
+- pm.max_children
+- pm.start_servers
+- pm.min_spare_servers
+- pm.max_spare_servers
+sebanyak tiga percobaan dan lakukan testing sebanyak 100 request dengan 10 request/second kemudian berikan hasil analisisnya pada Grimoire.
+Jawab:
 - Eisen
 nano 19-install-fpm.sh
 ```
@@ -1836,6 +1844,9 @@ bash 19-pool-3.sh
 ab -n 100 -c 10 -T 'application/json' -p user.json -H 'Content-Type: application/json' http://192.190.2.2/api/auth/login
 ```
 ## Nomor 20
+Soal:
+Nampaknya hanya menggunakan PHP-FPM tidak cukup untuk meningkatkan performa dari worker maka implementasikan Least-Conn pada Eisen. Untuk testing kinerja dari worker tersebut dilakukan sebanyak 100 request dengan 10 request/second.
+Jawab:
 - Eisen
 nano 20-lb.sh
 ```
