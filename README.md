@@ -1570,6 +1570,16 @@ curl -X POST http://192.190.2.2/api/auth/login -H "Content-Type: application/jso
 ```
 ab -n 100 -c 10 -H 'Authorization: Bearer [token login]' -T 'application/json' http://192.190.2.2/api/me
 ```
+
+Hasil test nomor 15:
+![testing-register](https://github.com/gilangalief05/Jarkom-Modul-3-B24-2023/assets/142609964/8d46aca9-b24d-471a-8f2d-f6e9e4495a66)
+
+Hasil test nomor 16:
+![testing-login](https://github.com/gilangalief05/Jarkom-Modul-3-B24-2023/assets/142609964/60590c4e-85dc-404c-b500-86b05a1cab7b)
+
+Hasil test nomor 17:
+![testing-me](https://github.com/gilangalief05/Jarkom-Modul-3-B24-2023/assets/142609964/fadc68d2-7ef3-44e0-965e-f0c7ff5bce7e)
+
 ## Nomor 18
 Soal:
 Untuk memastikan ketiganya bekerja sama secara adil untuk mengatur Riegel Channel maka implementasikan Proxy Bind pada Eisen untuk mengaitkan IP dari Frieren, Flamme, dan Fern.
@@ -1853,6 +1863,32 @@ bash 19-pool-3.sh
 ```
 ab -n 100 -c 10 -T 'application/json' -p user.json -H 'Content-Type: application/json' http://192.190.2.2/api/auth/login
 ```
+
+Hasil test nomor 19:
+- Test ke-1:
+![testing-pool-1](https://github.com/gilangalief05/Jarkom-Modul-3-B24-2023/assets/142609964/f6a84091-94a3-4137-aa83-26a5ffa0180d)
+
+- Test ke-2:
+![testing-pool-2](https://github.com/gilangalief05/Jarkom-Modul-3-B24-2023/assets/142609964/364aacba-3bcf-4a38-80f5-93030850f8c6)
+
+- Test ke-3:
+![testing-pool-3](https://github.com/gilangalief05/Jarkom-Modul-3-B24-2023/assets/142609964/b2add384-e45f-4e06-afc5-2ca8b7c35c9f)
+
+Analisa nomor 19:
+- Meskipun terdapat variasi konfigurasi PHP-FPM, hasil uji coba (Requests per
+second, Time per request) tetap relatif serupa di sepanjang tes. Hal ini mungkin
+menunjukkan bahwa pengaturan tidak secara signifikan memengaruhi kinerja di
+bawah beban dan konfigurasi spesifik ini.
+- Bagian "Connection Times" menunjukkan statistik tentang pembentukan
+koneksi, pemrosesan, dan total waktu. Waktu-waktu ini bervariasi dalam
+rentang tertentu di seluruh tes.
+- Meskipun beban dan konfigurasi berubah-ubah, dampaknya terhadap metrik
+kinerja (Requests per second, Time per request) nampaknya relatif konsisten.
+Penting untuk mempertimbangkan pola lalu lintas dunia nyata dan kondisi
+beban untuk optimisasi yang lebih akurat dalam lingkungan produksi. Selain itu,
+faktor lain seperti sumber daya server, logika aplikasi, dan infrastruktur juga bisa
+memengaruhi kinerja.
+
 ## Nomor 20
 Soal:
 Nampaknya hanya menggunakan PHP-FPM tidak cukup untuk meningkatkan performa dari worker maka implementasikan Least-Conn pada Eisen. Untuk testing kinerja dari worker tersebut dilakukan sebanyak 100 request dengan 10 request/second.
@@ -1925,3 +1961,23 @@ bash 20-lb.sh
 ```
 ab -n 100 -c 10 -T 'application/json' -p user.json -H 'Content-Type: application/json' http://192.190.2.2/api/auth/login
 ```
+
+Hasil test nomor 20:
+![testing-least-conn](https://github.com/gilangalief05/Jarkom-Modul-3-B24-2023/assets/142609964/7fc3b444-7214-4349-8763-d940f1ccb7b6)
+
+Analisa nomor 20:
+- Secara umum, hasil tes masih menunjukkan kinerja yang serupa dengan hasil
+sebelumnya, di mana tidak ada perubahan yang signifikan dalam metrik kinerja
+seperti requests per second (permintaan per detik) atau time per request (waktu
+per permintaan).
+- Meskipun menggunakan strategi "least_conn" untuk load balancing, tidak
+terlihat perubahan yang signifikan dalam waktu respon atau kinerja keseluruhan
+dibandingkan dengan tes sebelumnya yang menggunakan metode load
+balancing round robin.
+- Meskipun begitu, ada sedikit peningkatan dalam beberapa persentil waktu
+pemrosesan pada test terbaru, yang bisa menunjukkan sedikit peningkatan
+dalam latensi untuk sebagian kecil permintaan.
+- Kesimpulannya, meskipun telah beralih ke strategi load balancing "least_conn",
+kinerja secara umum masih serupa dengan tes sebelumnya. Pengukuran
+kinerja dalam tes terbaru tidak menunjukkan perbaikan signifikan dalam waktu
+respon atau throughput dibandingkan dengan pengaturan
