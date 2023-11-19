@@ -4,6 +4,16 @@ Nama anggota:
 - Gilang Aliefidanto (5025211119)
 - Vito Febrian Ananta (5025211224)
 
+Presentase kontribusi:
+- Gilang Aliefidanto (5025211119) :
+	- Nomor 8 sampai dengan Nomor 9 (Grimoire)
+   	- Pembuatan keseluruhan lapres (Lapres)
+
+- Vito Febrian Ananta (5025211224) :
+	- Nomor 1 sampai dengan Nomor 13 (Praktikum)
+   	- Nomor 14 sampai dengan Nomor 20 (Revisi)
+   	- Nomor 15 sampai dengan Nomor 20 (Gimoire)
+   	- Penambahan presentase kontribusi (Lapres)
 
 ## Persiapan
 Untuk menjawab soal, maka kami membuat topologi sesuai arahan. Soal meminta image docker `danielcristh0/debian-buster:1.1` dan peta topologi sebagai berikut:
